@@ -1,7 +1,7 @@
 """Views of posts app"""
 from django.shortcuts import get_object_or_404,redirect
 from django.views.generic import View
-from django.http import HttpResponseRedirect, HttpRequest, JsonResponse
+from django.http import HttpRequest, JsonResponse
 from .models import PostModel
 from .forms import CommentForm
 
@@ -31,7 +31,6 @@ class LikePostView(View):
         """
         post = get_object_or_404(PostModel,id=post_id)
         if post.likes.filter(id=request.user.id):
-
             post.likes.remove(request.user)
         else:
             post.likes.add(request.user)
@@ -40,25 +39,6 @@ class LikePostView(View):
             'likes':post.count_likes(),
         }
         return JsonResponse(data,safe=False)
-
-
-class CommentProfilePostView(View):
-    """
-    This view manages the comments in profile view.
-    """
-    def post(self, request:HttpRequest, post_id:int):
-        """
-        Redirects to profile view if liked from profile page.
-        """
-        user = request.user
-        post = PostModel.objects.select_related('author').get(id=post_id)
-        pointer_id = post.author.id
-        comment = CommentForm(request.POST)
-        if comment.is_valid():
-            new = comment.save(commit=False)
-            new.post,new.author = post, user
-            new.save()
-        return HttpResponseRedirect(f'/profile/{pointer_id}/')
 
 
 class CommentView(View):
