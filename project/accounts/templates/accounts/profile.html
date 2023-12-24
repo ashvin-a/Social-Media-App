@@ -1,6 +1,5 @@
 {% extends "accounts/base.html" %}
 {% load static %}
-{% load bootstrap_icons %}
 {% block title %}
 Profile | Social Media App
 {% endblock title %}
@@ -49,24 +48,24 @@ Profile | Social Media App
                 </div>
                 <div class="row">
                   <div class="col d-flex justify-content-center">
-                    <form action="{% url 'profile_like_post' post.id %}" method="POST">                    
+                    <form action="{% url 'like_post' post.id %}" method="POST" class='like-form' id="{{post.id}}">                    
                       {% csrf_token %}
-                      {% if curr_user in post.likes.all %}
-                        <button class="btn btn-heart">
+                      <button class="btn btn-heart btn-outline-none like-btn-{{post.id}}">
+                        {% if curr_user in post.likes.all %}
+                          <div style="display:none">Unlike</div>
                           <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
                             <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
                           </svg>                          
-                        </button>
-                      {% else %}
-                        <button class="btn btn-heart">
+                        {% else %}
+                          <div style="display:none">Like</div>
                           <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
                             <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
                           </svg>                          
+                        {% endif %}
                         </button>
-                      {% endif %}
                       </a>
                     </form>
-                    <div style="margin-top:10px">
+                    <div style="margin-top:10px" class="like-count-{{post.id}}">
                       {{post.count_likes}}
                     </div>
                   </div>
@@ -138,10 +137,57 @@ Profile | Social Media App
         </div>
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.7.1.js" 
+integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" 
+crossorigin="anonymous"></script>
 <script>
   function toggleComments(postId) {
       const commentsSection = document.getElementById(`commentSection${postId}`);
       commentsSection.classList.toggle('visible');
   }
+
+  $(document).ready(function() {
+    $('.like-form').submit(function(e){
+       e.preventDefault()
+
+       const post_id = $(this).attr('id')
+       const like_text = $.trim($(`.like-btn-${post_id}`).text())
+       const url = $(this).attr('action')
+       let res
+       const likes = parseInt($(`.like-count-${post_id}`).text())
+
+       $.ajax({
+         type:'POST',
+         url:url,
+         data:{
+           'csrfmiddlewaretoken':$('input[name=csrfmiddlewaretoken]').val(),
+           'post_id':post_id,
+         },
+         success: function(response){
+           if(like_text === 'Unlike'){
+             $(`.like-btn-${post_id}`).html(`
+             <div style="display:none">Like</div>
+             <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+               <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
+             </svg>
+             `)
+             res = likes - 1
+           }else{
+             $(`.like-btn-${post_id}`).html(`
+             <div style="display:none">Unlike</div>
+             <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+               <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+             </svg>
+             `)
+             res = likes + 1
+           }
+           $(`.like-count-${post_id}`).text(res)
+         },
+         error: function(response){
+           console.log('Error occured',response)
+         }
+       })
+     })
+ });
 </script>
 {% endblock content %}
