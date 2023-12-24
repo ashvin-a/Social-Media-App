@@ -1,7 +1,7 @@
 """Views of posts app"""
 from django.shortcuts import get_object_or_404,redirect
 from django.views.generic import View
-from django.http import HttpResponseRedirect, HttpRequest
+from django.http import HttpResponseRedirect, HttpRequest, JsonResponse
 from .models import PostModel
 from .forms import CommentForm
 
@@ -31,10 +31,15 @@ class LikePostView(View):
         """
         post = get_object_or_404(PostModel,id=post_id)
         if post.likes.filter(id=request.user.id):
+
             post.likes.remove(request.user)
         else:
             post.likes.add(request.user)
-        return redirect('homepage')
+
+        data = {
+            'likes':post.count_likes(),
+        }
+        return JsonResponse(data,safe=False)
 
 
 class LikeProfilePostView(View):
