@@ -42,23 +42,6 @@ class LikePostView(View):
         return JsonResponse(data,safe=False)
 
 
-class LikeProfilePostView(View):
-    """
-    This view manages the like button
-    """
-    def post(self, request:HttpRequest, post_id:int):
-        """
-        Redirects to profile view if liked from profile page.
-        """
-        post = PostModel.objects.select_related('author').get(id=post_id)
-        pointer_id = post.author.id
-        if post.likes.filter(id=request.user.id):
-            post.likes.remove(request.user)
-        else:
-            post.likes.add(request.user)
-        return HttpResponseRedirect(f'/profile/{pointer_id}/')
-
-
 class CommentProfilePostView(View):
     """
     This view manages the comments in profile view.

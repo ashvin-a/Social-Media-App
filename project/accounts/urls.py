@@ -31,8 +31,6 @@ urlpatterns = [
                                 login_url='login-page'), name='delete_post'),
     path('<int:post_id>/like/',login_required(post_view.LikePostView.as_view(),
                                 login_url='login-page'), name='like_post'),
-    path('<int:post_id>/profile-like/',login_required(post_view.LikeProfilePostView
-                     .as_view(),login_url='login-page'), name='profile_like_post'),
     path('my-profile/', login_required(views.EditProfileView.as_view(),
                                 login_url='login-page'), name='profile-page'),
     path('search/',login_required(views.SearchView.as_view(),
