@@ -1,0 +1,41 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block title %}
+Edit Profile | Social Media App
+{% endblock title %}
+{% block content %}
+{% include "accounts/includes/admin-nav.html" %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title text-center mb-4">Update Profile</h3>
+                    <form action="" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form.first_name.label_tag }}
+                            {{ form.first_name }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.last_name.label_tag }}
+                            {{ form.last_name }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.bio.label_tag }}
+                            {{ form.bio }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.profileimg.label_tag }}
+                            {{ form.profileimg }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content%}

@@ -1,0 +1,21 @@
+{% extends "accounts/base.html" %}
+{% block title %}
+Admin View | Social Media
+{% endblock title %}
+{% block content %}
+{% include "accounts/includes/admin-nav.html" %}
+<div class="container mx-1">
+    <div class="row justify-content-center">
+        {% comment %} left section {% endcomment %}
+        <div class="col-6">
+            <h1 class="heading">Welcome to admin panel!</h1>
+            <div class="card">
+                <div class="card-body py-1 justify-content-center">
+                    <img src="{{curr_user.profiledatamodel.profileimg.url}}" alt="" style= class="rounded-circle">
+                    <p class="card-text h2">
+                        Admin Dashboard : {{curr_user.username}}
+                    </p>
+                </div>
+            </div>
+        </div>
+{% endblock content %}

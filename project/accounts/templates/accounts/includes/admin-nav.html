@@ -1,0 +1,42 @@
+<nav class="navbar navbar-expand-md navbar-dark m-2 mb-3 bg-success rounded">
+    <a href="{% url 'admin' %}" class="btn heading" style="height:50px">
+        <h3 class="d-flex mt-2" style="width:250px;height:80px">Social Media App</h3>
+    </a>
+    <button class="navbar-toggler" data-toggle="collapse" data-target="#responsive"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="responsive">
+        <ul class="navbar-nav mx-5 text-capitalize">
+            <li class="nav-item"><a href="{% url 'admin'%}" class="nav-link mx-1" style="font-size:18px">home</a></li>
+            <li class="nav-item"><a href="{% url 'all-posts'%}" class="nav-link mx-1" style="font-size:18px">posts</a></li>
+            <li class="nav-item"><a href="{% url 'all-users'%}" class="nav-link mx-1" style="font-size:18px">users</a></li>
+            <li class="nav-item"><a href="#" class="nav-link mx-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-bell-fill" viewBox="0 0 16 16">
+              <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/>
+            </svg>
+            </a></li>
+            <li class="nav-item"><a href="#" class="nav-link mx-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-chat-left-fill" viewBox="0 0 16 16">
+                <path d="M2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+              </svg>              
+            </a></li>
+            <li class="nav-item"><a href="#" class="nav-link mx-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" class="bi bi-globe-central-south-asia" viewBox="0 0 16 16">
+                <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0M4.882 1.731a.482.482 0 0 0 .14.291.487.487 0 0 1-.126.78l-.291.146a.721.721 0 0 0-.188.135l-.48.48a1 1 0 0 1-1.023.242l-.02-.007a.996.996 0 0 0-.462-.04 7.03 7.03 0 0 1 2.45-2.027Zm-3 9.674.86-.216a1 1 0 0 0 .758-.97v-.184a1 1 0 0 1 .445-.832l.04-.026a1 1 0 0 0 .152-1.54L3.121 6.621a.414.414 0 0 1 .542-.624l1.09.818a.5.5 0 0 0 .523.047.5.5 0 0 1 .724.447v.455a.78.78 0 0 0 .131.433l.795 1.192a1 1 0 0 1 .116.238l.73 2.19a1 1 0 0 0 .949.683h.058a1 1 0 0 0 .949-.684l.73-2.189a1 1 0 0 1 .116-.238l.791-1.187A.454.454 0 0 1 11.743 8c.16 0 .306.084.392.218.557.875 1.63 2.282 2.365 2.282a.61.61 0 0 0 .04-.001 7.003 7.003 0 0 1-12.658.905Z"/>
+              </svg>              
+            </a></li>
+            <li class="nav-item">
+                <div class="dropdown mx-3 mt-1">
+                    <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+                      <img src="{{curr_user.profiledatamodel.profileimg.url}}" alt="" style="width: 35px; height: 35px;" class="rounded-circle">
+                    </a>
+                    <ul class="dropdown-menu text-small dropdown-menu-end fade" id="dropdownMenuButton1" aria-labelledby="dropdownUser2">
+                      <li><a class="dropdown-item" href="#">Settings</a></li>
+                      <li><a class="dropdown-item" href="{% url 'profile-page'%}">Update Profile</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="{% url 'logout' %}">Sign out</a></li>
+                    </ul>
+                  </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>

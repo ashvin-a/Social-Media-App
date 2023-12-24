@@ -1,0 +1,49 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% load bootstrap_icons %}
+{% block title %}
+Connections | Social Media App
+{% endblock title %}
+{% block content %}
+{% include "accounts/includes/nav.html" %}
+<div class="container mx-1 justify-content-center">
+    <div class="row">
+      {% include "accounts/includes/sidebar.html" %}
+        <div class="col-12 col-lg-3" >
+            <h2>Followers</h2>
+            {% for follower in followers %}
+            <div class="card mb-3">
+                <div class="card-body py-1">
+                    <a class="d-flex align-items-center link-dark text-decoration-none"href="{% url 'profile' follower.follower.id %}">
+                      {% if follower.follower.profiledatamodel.profileimg %}
+                      <img src="{{follower.follower.profiledatamodel.profileimg.url}}" alt="" style="width: 42px; height: 42px;" class="rounded-circle">
+                      {% else %}
+                      <img src="{%static 'images/blank-profile-picture.png'%}" alt="" style="width: 42px; height: 42px;" class="rounded-circle">
+                      {% endif %}
+                      <p class="card-text suggestion-name">{{follower.follower}}</p>
+                    </a>
+                </div>
+              </div>
+            {% endfor %}
+        </div>
+        
+        <div class="col-12 col-lg-3">
+            <h2>Following</h2>
+            {% for user in following %}
+            <div class="card mb-3">
+                <div class="card-body py-1">
+                    <a class="d-flex align-items-center link-dark text-decoration-none"href="{% url 'profile' user.user.id %}"> 
+                      {% if user.user.profiledatamodel.profileimg %}
+                      <img src="{{user.user.profiledatamodel.profileimg.url}}" alt="" style="width: 42px; height: 42px;" class="rounded-circle">
+                      {% else %}
+                      <img src="{%static 'images/blank-profile-picture.png'%}" alt="" style="width: 42px; height: 42px;" class="rounded-circle">
+                      {% endif %}
+                      <p class="card-text suggestion-name">{{user.user}}</p>
+                    </a>
+                </div>
+              </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
