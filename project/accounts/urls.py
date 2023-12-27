@@ -47,7 +47,8 @@ urlpatterns = [
     ),
     path(
         "<int:post_id>/comment/",
-        login_required(post_view.CommentView.as_view(), login_url="login-page"),
+        login_required(post_view.CommentView.as_view(), 
+                       login_url="login-page"),
         name="comment_post",
     ),
     path(
@@ -66,7 +67,8 @@ urlpatterns = [
     ),
     path(
         "my-profile/",
-        login_required(views.EditProfileView.as_view(), login_url="login-page"),
+        login_required(views.EditProfileView.as_view(),
+                       login_url="login-page"),
         name="profile-page",
     ),
     path(
