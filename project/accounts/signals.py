@@ -5,10 +5,10 @@ from django.dispatch import receiver
 
 
 @receiver(post_save, sender=User)
-def add_superuser_to_admin(instance:User, created:bool, **kwargs):
+def add_superuser_to_admin(instance: User, created: bool, **kwargs):
     """
     Add super user to admin group during creation
     """
     if created and instance.is_superuser:
-        admin = Group.objects.get(name='admin')
+        admin = Group.objects.get(name="admin")
         instance.groups.add(admin)

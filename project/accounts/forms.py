@@ -9,25 +9,30 @@ class CreateUserForm(UserCreationForm):
     """
     Form for user creation
     """
+
     class Meta:
         """Meta class for CreateUserForm"""
+
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ["username", "email", "password1", "password2"]
 
 
 class ProfileDataForm(forms.ModelForm):
     """
     Profile model
     """
+
     last_name = forms.CharField(required=False)
     bio = forms.CharField(
-                required=False,
-                widget=forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}))
+        required=False,
+        widget=forms.Textarea(attrs={"rows": 4, "class": "form-control"}),
+    )
     profileimg = forms.ImageField(
-                required=False,
-                widget=forms.FileInput(attrs={'class': 'form-control'}))
+        required=False, widget=forms.FileInput(attrs={"class": "form-control"})
+    )
 
     class Meta:
         """Meta class for ProfileDataForm"""
+
         model = ProfileDataModel
-        fields = ['first_name', 'last_name', 'bio', 'profileimg']
+        fields = ["first_name", "last_name", "bio", "profileimg"]
