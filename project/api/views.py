@@ -1,11 +1,11 @@
 from django.shortcuts import render
+from django.contrib.auth import authenticate, login
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.contrib.auth import authenticate, login
 from rest_framework_simplejwt.tokens import RefreshToken
-from .forms import LoginForm
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from .forms import LoginForm
 
 
 # Create your views here.
@@ -13,9 +13,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-
         token["username"] = user.username
-
         return token
 
 
