@@ -9,6 +9,16 @@ from .forms import LoginForm
 
 
 # Create your views here.
+@api_view(["GET"])
+def api_overview(request):
+    api_urls = {
+        "Obtains token pair": "/token/",
+        "Gets new pair of token": "/token/refresh/",
+    }
+
+    return Response(api_urls)
+
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
