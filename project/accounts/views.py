@@ -1,19 +1,19 @@
 """Views of accounts app"""
-from django.http import HttpResponseRedirect, HttpRequest
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.views import View
+from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
+from django.http import HttpResponseRedirect, HttpRequest
+from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from django.db.models import Q
-from django.core.mail import EmailMultiAlternatives
+from django.views import View
 from posts.forms import PostForm, CommentForm
 from posts.models import PostModel
-from .models import ProfileDataModel, FollowersModel
 from .forms import CreateUserForm, ProfileDataForm
-from .functions import paginate
+from .mixins import LoginMixin, AllowedUsersMixin, PaginatorMixin
+from .models import ProfileDataModel, FollowersModel
 
 
 class RegisterUser(View):
@@ -28,18 +28,7 @@ class RegisterUser(View):
         return render(request, "accounts/signup.html")
 
     def post(self, request: HttpRequest):
-        """Creates a new user.
-
-        Parameters
-        ----------
-        request : HttpRequest
-            Request object
-
-        Returns
-        -------
-        Callable
-            Reverse url redirect or render page
-        """
+        """Creates a new user."""
         form = CreateUserForm(request.POST)
         if form.is_valid():
             form.save()
@@ -84,15 +73,14 @@ class LoginUser(View):
     def post(self, request: HttpRequest):
         """Logs the user after authentication.
 
-        Parameters
-        ----------
-        request : HttpRequest
-            Request object
+        Parameters:
+            request (HttpRequest): The request object
 
-        Returns
-        -------
-        Callable
-            Reverse url redirect or render page
+        Returns:
+            HttpResponseRedirect: A redirect to the homepage if the user is
+            authenticated, or a render of the login page with an error message
+            if the credentials are incorrect.
+
         """
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -101,11 +89,7 @@ class LoginUser(View):
             login(request, user)
             if user.is_staff:
                 return redirect("admin")
-            print(request.user.is_active)
             return redirect("homepage")
-        # if not request.user.is_active:
-        #     messages.warning(request,'Your account is deactivated.\
-        #                     Please contact support team')
         messages.warning(request, "Username or password is incorrect")
         return render(request, "accounts/login.html")
 
@@ -123,9 +107,15 @@ class Logout(View):
         return redirect("login-page")
 
 
-class PostListView(View):
+class PostListView(LoginMixin, PaginatorMixin, View):
     """
     This view renders the homepage(landing page) after user logs in.
+
+    Args:
+        request (HttpRequest): The request object
+
+    Returns:
+        HttpResponse: The rendered homepage
     """
 
     def get(self, request: HttpRequest):
@@ -154,7 +144,7 @@ class PostListView(View):
         all_users = User.objects.exclude(
             Q(id=request.user.id) | Q(id__in=author_id_list)
         )
-        page_obj = paginate(request, all_users)
+        page_obj = self.paginate(request, all_users)
         context = {
             "comment_form": comment_form,
             "post_list": posts,
@@ -190,7 +180,7 @@ class PostListView(View):
         return render(request, "accounts/homepage.html", context)
 
 
-class EditProfileView(View):
+class EditProfileView(LoginMixin, View):
     """
     This view enables user to edit their profile.
     """
@@ -235,7 +225,7 @@ class EditProfileView(View):
             return redirect("homepage")
 
 
-class ProfileView(View):
+class ProfileView(LoginMixin, PaginatorMixin, View):
     """
     This view renders the detailed profile page of each user.
     """
@@ -266,7 +256,7 @@ class ProfileView(View):
         posts = PostModel.objects.filter(author_id=user.id).order_by(
             "-created_on"
         )
-        page_obj = paginate(request, posts)
+        page_obj = self.paginate(request, posts)
         try:
             profile = ProfileDataModel.objects.get(user_id=user.id)
         except ProfileDataModel.DoesNotExist:
@@ -298,7 +288,7 @@ class ProfileView(View):
         return HttpResponseRedirect(f"/profile/{user_to_follow.id}/")
 
 
-class ConnectionView(View):
+class ConnectionView(LoginMixin, View):
     """
     This view renders the detailed profile page of each user
     """
@@ -308,7 +298,11 @@ class ConnectionView(View):
         Views the users who are being followed and following the current user
         """
         curr_user = request.user
-        profile = ProfileDataModel.objects.get(user=curr_user)
+        try:
+            profile = ProfileDataModel.objects.get(user=curr_user)
+        except ProfileDataModel.DoesNotExist:
+            profile = None
+            return redirect("profile-page")
         followers = FollowersModel.objects.filter(user=request.user)
         following = FollowersModel.objects.filter(follower=request.user)
         context = {
@@ -320,7 +314,7 @@ class ConnectionView(View):
         return render(request, "accounts/connections.html", context)
 
 
-class SearchView(View):
+class SearchView(LoginMixin, View):
     """
     This view lists out all the users who have the search word as a part of
     their first name or last name
@@ -330,7 +324,11 @@ class SearchView(View):
         """
         Shows matching users
         """
-        profile = ProfileDataModel.objects.get(user=request.user)
+        try:
+            profile = ProfileDataModel.objects.get(user=request.user)
+        except ProfileDataModel.DoesNotExist:
+            profile = None
+            return redirect("profile-page")
         followers = FollowersModel.objects.filter(user=request.user)
         following = FollowersModel.objects.filter(follower=request.user)
         context = {
@@ -346,7 +344,13 @@ class SearchView(View):
         Search for matching users
         """
         key = request.POST.get("search")
-        profile = get_object_or_404(ProfileDataModel, user=request.user)
+        try:
+            profile = ProfileDataModel.objects.get(user=request.user)
+        except ProfileDataModel.DoesNotExist:
+            profile = None
+            return redirect("profile-page")
+        followers = FollowersModel.objects.filter(user=request.user)
+        following = FollowersModel.objects.filter(follower=request.user)
         user_list = (
             ProfileDataModel.objects.filter(
                 Q(first_name__icontains=key)
@@ -360,11 +364,13 @@ class SearchView(View):
             "user_list": user_list,
             "curr_user": request.user,
             "profile": profile,
+            "followers": followers,
+            "following": following,
         }
         return render(request, "accounts/search.html", context)
 
 
-class AdminView(View):
+class AdminView(LoginMixin, AllowedUsersMixin, View):
     """
     This is the landing page for admins.
     """
@@ -378,7 +384,7 @@ class AdminView(View):
         )
 
 
-class ViewUsers(View):
+class ViewUsers(LoginMixin, AllowedUsersMixin, PaginatorMixin, View):
     """
     Admin can manage users here.
     """
@@ -388,7 +394,7 @@ class ViewUsers(View):
         Views all the users.
         """
         all_users = ProfileDataModel.objects.exclude(Q(user=request.user.id))
-        page_obj = paginate(request, all_users)
+        page_obj = self.paginate(request, all_users)
         context = {"curr_user": request.user, "all_users": page_obj}
         return render(request, "accounts/list_users.html", context)
 
@@ -406,7 +412,7 @@ class ViewUsers(View):
             .exclude(user=request.user)
             .order_by("-last_updated")
         )
-        page_obj = paginate(request, user_list)
+        page_obj = self.paginate(request, user_list)
         context = {
             "curr_user": request.user,
             "all_users": page_obj,
@@ -414,7 +420,7 @@ class ViewUsers(View):
         return render(request, "accounts/list_users.html", context)
 
 
-class ViewPosts(View):
+class ViewPosts(LoginMixin, AllowedUsersMixin, PaginatorMixin, View):
     """
     View all posts.
     """
@@ -426,7 +432,7 @@ class ViewPosts(View):
         form = PostForm()
         comment_form = CommentForm()
         posts = PostModel.objects.all().order_by("-created_on")
-        page_obj = paginate(request, posts)
+        page_obj = self.paginate(request, posts)
         context = {
             "comment_form": comment_form,
             "post_list": page_obj,
@@ -436,7 +442,7 @@ class ViewPosts(View):
         return render(request, "accounts/list_posts.html", context)
 
 
-class DeactivateUser(View):
+class DeactivateUser(LoginMixin, AllowedUsersMixin, View):
     """
     Enables admin to modify access of the user.
     """
