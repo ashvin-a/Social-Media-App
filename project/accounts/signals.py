@@ -10,5 +10,5 @@ def add_superuser_to_admin(instance: User, created: bool, **kwargs):
     Add super user to admin group during creation
     """
     if created and instance.is_superuser:
-        admin = Group.objects.get(name="admin")
+        admin, created = Group.objects.get_or_create(name="admin")
         instance.groups.add(admin)
