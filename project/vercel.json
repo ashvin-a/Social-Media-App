@@ -10,12 +10,15 @@
     }],
     "routes":[
         {
-            "src":"/(.*)",
-            "dest": "socialmedia/wsgi.py"
+            "src": "/static/(.*)",
+            "dest": "/static/$1"
         },
         {
-            "src":"/static/(.*)",
-            "dest": "/static/images/"
+            "src": "/media/(.*)",
+            "dest": "/media/$1"
+        },{
+            "src":"/(.*)",
+            "dest": "socialmedia/wsgi.py"
         }
     ]
 }
