@@ -9,11 +9,14 @@ from datetime import timedelta
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+dotenv_file = os.path.join(BASE_DIR,".env")
 
+if os.path.exists(dotenv_file):
+    load_dotenv(dotenv_file)
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0','.vercel.app']
+ALLOWED_HOSTS = ['0.0.0.0','.vercel.app', '.now.sh']
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -71,7 +74,7 @@ WSGI_APPLICATION = "socialmedia.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": os.environ.get("POSTGRES_DB"),
         "USER": os.environ.get("POSTGRES_USER"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
