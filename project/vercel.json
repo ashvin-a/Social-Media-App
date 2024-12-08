@@ -12,6 +12,10 @@
         {
             "src":"/(.*)",
             "dest": "socialmedia/wsgi.py"
+        },
+        {
+            "src":"/static/(.*)",
+            "dest": "/static/$1"
         }
     ]
 }
